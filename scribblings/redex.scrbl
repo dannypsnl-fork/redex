@@ -1,11 +1,11 @@
 #lang scribble/manual
 
-@require[@for-label[racket-project
+@require[@for-label[redex
                     racket/base]]
 
-@title{racket-project}
+@title{redex}
 @author{Lîm Tsú-thuàn}
 
-@defmodule[racket-project]
+@defmodule[redex]
 
 Package Description Here
