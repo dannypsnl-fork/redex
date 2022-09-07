@@ -68,21 +68,22 @@
        ['types (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 3) ":" (list-ref lws 4)))])
     (derivation->pict L (car d))))
 
-(pretty-derivation
- (build-derivations
-  (types ∅
-         ((λ (x Number) x) (+ 1 2))
-         Number)))
-
-(pretty-derivation
- (build-derivations
-  (types
-   (ext ∅ f : (→ Bool Bool))
-   (f (if false true false))
-   Bool)))
-
-#;(pretty-derivation
+(module+ main
+  (pretty-derivation
    (build-derivations
-    (types (ext ∅ f : (→ Bool Bool))
-           (λ (x : Bool) (f (if x false x)))
-           (→ Bool Bool))))
+    (types ∅
+           ((λ (x Number) x) (+ 1 2))
+           Number)))
+
+  (pretty-derivation
+   (build-derivations
+    (types
+     (ext ∅ f : (→ Bool Bool))
+     (f (if false true false))
+     Bool)))
+
+  #;(pretty-derivation
+     (build-derivations
+      (types (ext ∅ f : (→ Bool Bool))
+             (λ (x : Bool) (f (if x false x)))
+             (→ Bool Bool)))))
