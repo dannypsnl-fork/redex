@@ -1,4 +1,5 @@
 #lang racket
+(provide L+Γ)
 (require redex)
 
 (define-language L
