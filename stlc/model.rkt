@@ -1,9 +1,12 @@
 #lang racket
-(provide L+Γ)
+(provide L+Γ
+         types
+         pretty-derivation)
 (require redex)
 
 (define-language L
-  (e (e e)
+  (e ::=
+     (e e)
      (λ (x T) e)
      x
      true
@@ -11,14 +14,17 @@
      number
      (+ e ...)
      (if e e e))
-  (T (→ T T)
+  (T ::=
+     (→ T T)
      ; Not part of the type theory, but Base type is required to make the system works
      Bool
      Number)
   (x variable-not-otherwise-mentioned))
 
 (define-extended-language L+Γ L
-  [Γ ∅ (ext Γ x : T)])
+  [Γ ::=
+     ∅
+     (:+ Γ x : T)])
 
 (define-metafunction L+Γ
   [(different? x_1 x_1) #f]
@@ -29,17 +35,17 @@
   #:mode (types I I O)
   #:contract (types Γ e T)
   [(types Γ e_1 (→ T_2 T_3)) (types Γ e_2 T_2)
-   ------------------------------------------- "T-App"
+   ------------------------------------------- "T-APP"
    (types Γ (e_1 e_2) T_3)]
-  [(types (ext Γ x : T_1) e T_2)
-   ----------------------------------- "T-Abs"
+  [(types (:+ Γ x : T_1) e T_2)
+   ----------------------------------- "T-ABS"
    (types Γ (λ (x T_1) e) (→ T_1 T_2))]
-  [--------------------- "T-Var"
-   (types (ext Γ x : T) x T)]
+  [--------------------- "T-VAR"
+   (types (:+ Γ x : T) x T)]
   [(types Γ x_1 T_1)
    (side-condition (different? x_1 x_2))
    ------------------------------------
-   (types (ext Γ x_2 : T_2) x_1 T_1)]
+   (types (:+ Γ x_2 : T_2) x_1 T_1)]
 
   #| Base Types |#
   [(types Γ e Number) ...
@@ -60,11 +66,11 @@
 
 (define (pretty-derivation d)
   (with-compound-rewriters
-      (['ext (λ (lws)
-               (list (list-ref lws 2) ", "
-                     (list-ref lws 3)
-                     ":"
-                     (list-ref lws 5)))]
+      ([':+ (λ (lws)
+              (list (list-ref lws 2) ", "
+                    (list-ref lws 3)
+                    ":"
+                    (list-ref lws 5)))]
        ['→ (λ (lws) (list (list-ref lws 2) " → " (list-ref lws 3)))]
        ['types (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 3) ":" (list-ref lws 4)))])
     (derivation->pict L (car d))))
@@ -79,12 +85,12 @@
   (pretty-derivation
    (build-derivations
     (types
-     (ext ∅ f : (→ Bool Bool))
+     (:+ ∅ f : (→ Bool Bool))
      (f (if false true false))
      Bool)))
 
   #;(pretty-derivation
      (build-derivations
-      (types (ext ∅ f : (→ Bool Bool))
+      (types (:+ ∅ f : (→ Bool Bool))
              (λ (x : Bool) (f (if x false x)))
              (→ Bool Bool)))))
