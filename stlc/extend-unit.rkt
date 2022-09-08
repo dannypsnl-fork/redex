@@ -22,8 +22,14 @@
   [------------------------
    (types+Unit Γ unit Unit)])
 
+(define (pretty-derivation+Unit d)
+  (with-compound-rewriters
+      (['seq (λ (lws) (list (list-ref lws 2) " ; " (list-ref lws 3)))]
+       ['types+Unit (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 3) ":" (list-ref lws 4)))])
+    (pretty-derivation d)))
+
 (module+ main
-  (pretty-derivation
+  (pretty-derivation+Unit
    (build-derivations
     (types+Unit
      (:+ (:+ ∅ a : Unit)
