@@ -1,7 +1,8 @@
 #lang racket
 (provide L+Γ
          types
-         pretty-derivation)
+         pretty-derivation
+         pretty-judgment-form)
 (require redex)
 
 (define-language L
@@ -42,8 +43,7 @@
    (types Γ (λ (x T_1) e) (→ T_1 T_2))]
   [--------------------- "T-VAR"
    (types (:+ Γ x : T) x T)]
-  [(types Γ x_1 T_1)
-   (side-condition (different? x_1 x_2))
+  [(types Γ x_1 T_1) (side-condition (different? x_1 x_2))
    ------------------------------------
    (types (:+ Γ x_2 : T_2) x_1 T_1)]
 
@@ -58,13 +58,11 @@
    (types Γ true Bool)]
   [-------------------
    (types Γ false Bool)]
-  [(types Γ e_1 Bool)
-   (types Γ e_2 T)
-   (types Γ e_3 T)
+  [(types Γ e_1 Bool) (types Γ e_2 T) (types Γ e_3 T)
    -----------------------------
    (types Γ (if e_1 e_2 e_3) T)])
 
-(define (pretty-derivation d)
+(define (C thunk)
   (with-compound-rewriters
       ([':+ (λ (lws)
               (list (list-ref lws 2) ", "
@@ -72,8 +70,14 @@
                     ":"
                     (list-ref lws 5)))]
        ['→ (λ (lws) (list (list-ref lws 2) " → " (list-ref lws 3)))]
-       ['types (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 3) ":" (list-ref lws 4)))])
-    (derivation->pict L (car d))))
+       ['types (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 3) " : " (list-ref lws 4)))])
+    (thunk)))
+
+(define (pretty-judgment-form f)
+  (C (λ () (judgment-form->pict types))))
+
+(define (pretty-derivation d)
+  (C (λ () (derivation->pict L (car d)))))
 
 (module+ main
   (pretty-derivation
