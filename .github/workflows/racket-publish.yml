@@ -21,7 +21,7 @@ jobs:
           variant: "CS"
           version: "stable"
       - name: Build
-        run: make
+        run: xvfb-run -a make
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
