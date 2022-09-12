@@ -66,10 +66,8 @@
   (with-compound-rewriters
       ([':+ (λ (lws)
               (list (list-ref lws 2) ", "
-                    (list-ref lws 3)
-                    ":"
-                    (list-ref lws 5)))]
-       ['→ (λ (lws) (list (list-ref lws 2) " → " (list-ref lws 3)))]
+                    (list-ref lws 3) ":" (list-ref lws 5)))]
+       ['→ (λ (lws) (list (list-ref lws 2) (arrow->pict '->) (list-ref lws 3)))]
        ['types (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 3) " : " (list-ref lws 4)))])
     (thunk)))
 
