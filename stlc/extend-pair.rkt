@@ -1,5 +1,6 @@
 #lang racket
 (require "model.rkt"
+         "eval.rkt"
          redex)
 
 (define-language L+Pair
@@ -43,3 +44,40 @@
          b : Bool)
      (fst (cons a b))
      Number))))
+
+#|
+extend evaluation
+|#
+(define-extended-language Ev-pair L+Γ+Pair
+  (E ::=
+     (cons v E)
+     (cons E e)
+     (fst E)
+     (snd E)
+     hole))
+
+(define-union-language Ev+pair
+  Ev-pair Ev)
+
+(define red-pair
+  (extend-reduction-relation
+   red
+   Ev+pair
+   #:domain p
+   (--> (in-hole P (fst (cons e_1 e_2)))
+        (in-hole P e_1)
+        "E-PROJ1")
+   (--> (in-hole P (snd (cons e_1 e_2)))
+        (in-hole P e_2)
+        "E-PROJ2")))
+
+(module+ main
+  (require pict)
+
+  (vl-append
+   20
+   (language->pict Ev-pair)
+   (reduction-relation->pict red-pair))
+
+  (traces red-pair
+          (term ((snd (fst (cons (cons 1 3) 2)))))))
