@@ -59,9 +59,7 @@ extend evaluation
    #:domain p
    (--> (in-hole P (seq unit e_2))
         (in-hole P e_2)
-        "E-SEQNEXT")
-   (--> (in-hole P unit)
-        (in-hole P unit))))
+        "E-SEQNEXT")))
 
 (module+ main
   (require pict)
@@ -69,11 +67,16 @@ extend evaluation
   (vl-append
    20
    (language->pict Ev-unit)
-   (reduction-relation->pict red+unit))
+   (reduction-relation->pict red+unit)))
 
-  (traces red+unit
-          (term ((seq unit 2))))
+(module+ test
+  (test-->> red+unit
+            (term ((seq unit 2)))
+            (term (2)))
 
-  (traces red+unit
-          (term ((seq ((λ (x Number) unit) 1)
-                      (seq unit 2))))))
+  (test-->> red+unit
+            (term ((seq ((λ (x Number) unit) 1)
+                        (seq unit 2))))
+            (term (2)))
+
+  (test-results))
