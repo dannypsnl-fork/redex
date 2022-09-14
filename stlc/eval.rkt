@@ -1,4 +1,6 @@
 #lang racket
+(provide Ev
+         red)
 (require "model.rkt"
          redex
          redex/tut-subst)
@@ -35,25 +37,24 @@
    #:domain p
    (--> (in-hole P (if true e_1 e_2))
         (in-hole P e_1)
-        "if-t")
+        "IF-TRUE")
    (--> (in-hole P (if false e_1 e_2))
         (in-hole P e_2)
-        "if-f")
-   (--> (in-hole P ((λ (x t) e) v))
+        "IF-FALSE")
+   (--> (in-hole P ((λ (x T) e) v))
         (in-hole P (subst x v e))
-        "β-reduction")
+        "βv")
    (--> (in-hole P (+ number ...))
         (in-hole P (Σ number ...))
-        "plus")))
+        "Σ")))
 
 (module+ main
   (require pict)
 
-  (scale (vl-append
-          20
-          (language->pict Ev)
-          (reduction-relation->pict red))
-         4/3))
+  (vl-append
+   20
+   (language->pict Ev)
+   (reduction-relation->pict red)))
 
 (module+ test
   (test-->>
