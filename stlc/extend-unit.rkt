@@ -1,5 +1,6 @@
 #lang racket
 (require "model.rkt"
+         "eval.rkt"
          redex)
 
 (define-language Unit-SEQ
@@ -13,26 +14,66 @@
 
 (define-extended-judgment-form
   L+Γ+Unit types
-  #:mode (types+Unit I I O)
-  #:contract (types+Unit Γ e T)
-  [(types+Unit Γ e_1 Unit) (types+Unit Γ e_2 T_2)
+  #:mode (⊢ I I O)
+  #:contract (⊢ Γ e T)
+  [(⊢ Γ e_1 Unit) (⊢ Γ e_2 T_2)
    ---------------------------------------------- "T-SEQ"
-   (types+Unit Γ (seq e_1 e_2) T_2)]
+   (⊢ Γ (seq e_1 e_2) T_2)]
 
   [------------------------
-   (types+Unit Γ unit Unit)])
+   (⊢ Γ unit Unit)])
 
 (define (pretty-derivation+Unit d)
   (with-compound-rewriters
       (['seq (λ (lws) (list (list-ref lws 2) " ; " (list-ref lws 3)))]
-       ['types+Unit (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 3) ":" (list-ref lws 4)))])
+       ['⊢ (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 3) ":" (list-ref lws 4)))])
     (pretty-derivation d)))
 
 (module+ main
   (pretty-derivation+Unit
    (build-derivations
-    (types+Unit
+    (⊢
      (:+ (:+ ∅ a : Unit)
          b : Bool)
      (seq a (seq unit b))
      Bool))))
+
+#|
+extend evaluation
+|#
+(define-extended-language Ev-unit L+Γ+Unit
+  (E ::=
+     (seq E e)
+     (seq v E)
+     hole)
+  (v ::=
+     unit))
+
+(define-union-language Ev+unit
+  Ev-unit Ev)
+
+(define red+unit
+  (extend-reduction-relation
+   red
+   Ev+unit
+   #:domain p
+   (--> (in-hole P (seq unit e_2))
+        (in-hole P e_2)
+        "E-SEQNEXT")
+   (--> (in-hole P unit)
+        (in-hole P unit))))
+
+(module+ main
+  (require pict)
+
+  (vl-append
+   20
+   (language->pict Ev-unit)
+   (reduction-relation->pict red+unit))
+
+  (traces red+unit
+          (term ((seq unit 2))))
+
+  (traces red+unit
+          (term ((seq ((λ (x Number) unit) 1)
+                      (seq unit 2))))))
