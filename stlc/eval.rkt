@@ -59,7 +59,18 @@
 (module+ test
   (test-->>
    red
+   (term (((λ (x Number) (+ x 2)) 3)))
+   (term (5)))
+
+  (test-->>
+   red
    (term ((if false 2 3)))
    (term (3)))
+
+  #;(test-->>
+     red
+     (term (((λ (y Number) y)
+             ((λ (x Number) (+ x 2)) 3))))
+     (term (5)))
 
   (test-results))
